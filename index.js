@@ -29,7 +29,7 @@ axios
     const $ = cheerio.load(response.data);
     // getting all the img with id #images in the html
     const images = '#images img';
-    $(images).each((_, img) => {
+    $(images).each((index, img) => {
       // pushing all the images into the array
       emptyArray.push($(img).attr('src'));
     });
