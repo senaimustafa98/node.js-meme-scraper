@@ -1,8 +1,17 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { DownloaderHelper } from 'node-downloader-helper';
+import fs from 'fs'
 
 const url = 'https://memegen-link-examples-upleveled.netlify.app/';
+
+
+let dir = './memes';
+
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+
 
 const emptyArray = [];
 
