@@ -14,18 +14,19 @@ const imgArray = [];
 const downloadImage = (imageUrl, index) => {
   const fileName = `memes/${String(index + 1).padStart(2, '0')}.jpg`;
 
+  https
+    .get(imageUrl, (res) => {
+      const filePath = fs.createWriteStream(fileName);
+      res.pipe(filePath);
 
-  https.get(imageUrl, (res) => {
-    const filePath = fs.createWriteStream(fileName);
-    res.pipe(filePath);
-
-    filePath.on('finish', () => {
-      filePath.close();
-      console.log(`Downloaded: ${fileName}`);
+      filePath.on('finish', () => {
+        filePath.close();
+        console.log(`Downloaded: ${fileName}`);
+      });
+    })
+    .on('error', (err) => {
+      console.error(`Error downloading ${imageUrl}:`, err.message);
     });
-  }).on('error', (err) => {
-    console.error(`Error downloading ${imageUrl}:`, err.message);
-  });
 };
 
 // init the axios with the url
