@@ -1,31 +1,31 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { DownloaderHelper } from 'node-downloader-helper';
 import fs from 'node:fs';
+import https from 'node:https';
 
 const url = 'https://memegen-link-examples-upleveled.netlify.app/';
-
 const dir = './memes';
 
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir);
-}
+fs.mkdirSync(dir, { recursive: true });
 
-const emptyArray = [];
+const imgArray = [];
 
-const downloadImage = (imageURL, index) => {
-  // file naming based on index
-  const fileName = (index + 1).toString().padStart(2, 0) + '.jpg';
-  const options = { override: true, fileName: fileName };
-  const dl = new DownloaderHelper(imageURL, './memes', options);
+// Function to download image
+const downloadImage = (imageUrl, index) => {
+  const fileName = `memes/${String(index + 1).padStart(2, '0')}.jpg`;
 
-  // event lister to catch errors
-  dl.on('end', () =>
-    console.log(`Image ${fileName} has been successfully downloaded`),
-  );
-  dl.on('error', (err) => console.log('Download Failed', err));
 
-  dl.start().catch((err) => console.error(err));
+  https.get(imageUrl, (res) => {
+    const filePath = fs.createWriteStream(fileName);
+    res.pipe(filePath);
+
+    filePath.on('finish', () => {
+      filePath.close();
+      console.log(`Downloaded: ${fileName}`);
+    });
+  }).on('error', (err) => {
+    console.error(`Error downloading ${imageUrl}:`, err.message);
+  });
 };
 
 // init the axios with the url
@@ -38,10 +38,10 @@ axios
     const images = '#images img';
     $(images).each((index, img) => {
       // pushing all the images into the array
-      emptyArray.push($(img).attr('src'));
+      imgArray.push($(img).attr('src'));
     });
     // returning the array to proceed into the next .then promise
-    return emptyArray;
+    return imgArray;
   })
   // slicing the array to include only first 10 and returning it
   .then((imageArray) => {
